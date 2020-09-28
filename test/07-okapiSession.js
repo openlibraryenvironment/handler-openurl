@@ -19,12 +19,6 @@ describe('07. run an Okapi session', () => {
     it(`rejects a config with no ${key}`, () => {
       let okapi, e;
       try {
-/*
-        const cfg = new Config({ loggingCategories: '' });
-        const values = cfg.getValues().services['US-EAST'];
-        values[key] = '';
-        okapi = new OkapiSession(cfg, 'US-EAST', values);
-*/
         const overrides = { [key]: '' };
         console.log('1. overrides =', overrides);
         okapi = newOkapiSessionForService(cfg, 'US-EAST', overrides);
