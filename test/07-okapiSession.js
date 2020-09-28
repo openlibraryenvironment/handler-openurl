@@ -5,14 +5,29 @@ const { OkapiSession } = require('../src/OkapiSession');
 const HTTPError = require('../src/HTTPError');
 
 describe('07. run an Okapi session', () => {
+  function newOkapiSessionForService(cfg, label, override) {
+    console.log('2. in newOkapiSessionForService');
+    const values = cfg.getValues().services[label];
+    Object.keys(overrides).forEach(key => {
+      values[key] = overrides[key];
+    });
+    console.log('3. values = ', values);
+    return undefined; // new OkapiSession(cfg, label, values);
+  }
+
   function rejectConfig(key) {
     it(`rejects a config with no ${key}`, () => {
       let okapi, e;
       try {
-        const vars = { loggingCategories: '' };
-        vars[key] = '';
-        const cfg = new Config(vars);
-        okapi = new OkapiSession(cfg);
+/*
+        const cfg = new Config({ loggingCategories: '' });
+        const values = cfg.getValues().services['US-EAST'];
+        values[key] = '';
+        okapi = new OkapiSession(cfg, 'US-EAST', values);
+*/
+        const overrides = { [key]: '' };
+        console.log('1. overrides =', overrides);
+        okapi = newOkapiSessionForService(cfg, 'US-EAST', overrides);
       } catch (e1) {
         e = e1;
       }
@@ -27,7 +42,7 @@ describe('07. run an Okapi session', () => {
 
   it('correctly authenticates with good credentials', (done) => {
     const cfg = new Config({ loggingCategories: '' });
-    const okapi = new OkapiSession(cfg);
+    const okapi = new OkapiSession(cfg, 'US-EAST', cfg.getValues().services['US-EAST']);
     const p = okapi.login();
     p.then(() => {
       assert.match(okapi.token, /^[a-zA-Z0-9_.-]*$/);
@@ -62,7 +77,7 @@ describe('07. run an Okapi session', () => {
 
   it('correctly fails to authenticate with bad credentials', (done) => {
     const cfg = new Config({ loggingCategories: '', password: 'somethingWrong' });
-    const okapi = new OkapiSession(cfg);
+    const okapi = new OkapiSession(cfg, 'US-EAST', cfg.getValues().services['US-EAST']);
     const p = okapi.login();
     p.then(() => {
       done(new Error('logged in successfully but did not expect to'));
